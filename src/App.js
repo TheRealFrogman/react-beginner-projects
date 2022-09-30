@@ -6,19 +6,11 @@ import { Users } from "./components/Users";
 // Тут список пользователей: https://reqres.in/api/users
 
 function App() {
-   const [userList, setUserList] = useState(null);
+   const [userList, setUserList] = useState([]);
    const [isLoading, setLoading] = useState(true);
+   const [inviteList, setInviteList] = useState([]);
+   const [success, setSuccess] = useState(false);
 
-   // async function getUsers() {
-   //    await fetch("https://reqres.in/api/users")
-   //       .then((response) => response.json())
-   //       .then((result) => {
-   //          setUserList(result.data);
-
-   //          setLoading(false);
-   //       })
-   //       .catch((err) => console.warn(err));
-   // }
    useEffect(() => {
       fetch("https://reqres.in/api/users")
          .then((response) => response.json())
@@ -29,10 +21,32 @@ function App() {
          .finally(() => setLoading(false));
    }, []);
 
+   const handleInvite = (id) => {
+      if (inviteList.includes(id))
+         setInviteList((prev) => prev.filter((_id) => _id !== id));
+      else setInviteList((prev) => [...prev, id]);
+   };
+
+   const handleSuccess = (bool) => {
+      if (inviteList.length) setSuccess(bool);
+   };
+
    return (
       <div className="App">
-         <Users isLoading={isLoading} userList={userList} />
-         {/* <Success /> */}
+         {success ? (
+            <Success
+               count={inviteList.length}
+               handleSuccess={() => handleSuccess(false)}
+            />
+         ) : (
+            <Users
+               isLoading={isLoading}
+               userList={userList}
+               handleInvite={handleInvite}
+               inviteList={inviteList}
+               handleSuccess={() => handleSuccess(true)}
+            />
+         )}
       </div>
    );
 }

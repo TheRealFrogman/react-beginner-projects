@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Skeleton } from "./Skeleton";
 import { User } from "./User";
 
-export const Users = ({ userList, isLoading }) => {
+export const Users = ({
+   userList,
+   isLoading,
+   handleInvite,
+   inviteList,
+   handleSuccess,
+}) => {
    const [searchValue, setSearchValue] = useState("");
 
    function handleSearch(event) {
@@ -35,13 +41,22 @@ export const Users = ({ userList, isLoading }) => {
                   const fullName = `${person.first_name} ${person.last_name}`;
                   return (
                      (regex.test(person.email) || regex.test(fullName)) && (
-                        <User key={person.id} userInfo={person} />
+                        <User
+                           handleInvite={() => handleInvite(person.id)}
+                           isInvited={inviteList.includes(person.id)}
+                           key={person.id}
+                           userInfo={person}
+                        />
                      )
                   );
                })}
             </ul>
          )}
-         <button className="send-invite-btn">Отправить приглашение</button>
+         {!!inviteList.length && (
+            <button className="send-invite-btn" onClick={handleSuccess}>
+               Отправить приглашение
+            </button>
+         )}
       </>
    );
 };
