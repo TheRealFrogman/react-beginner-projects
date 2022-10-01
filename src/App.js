@@ -2,30 +2,8 @@ import React, { useEffect, useReducer, useState } from "react";
 import "./index.scss";
 import { Success } from "./components/Success";
 import { Users } from "./components/Users";
-
+import { fetchConditions, fetchReducer, INITIAL_STATE } from "./reducer";
 // Тут список пользователей: https://reqres.in/api/users
-
-const fetchConditions = {
-    fetch_start: "FETCH_START",
-    fetch_final: "FETCH_FINAL",
-    fetch_success: "FETCH_SUCCESS",
-    fetch_fail: "FETCH_FAIL",
-};
-const INITIAL_STATE = { userList: [], isLoading: true, error: null };
-const fetchReducer = (state, action) => {
-    switch (action.type) {
-        case "FETCH_START":
-            return { ...state, isLoading: true, error: false };
-        case "FETCH_FINAL":
-            return { ...state, isLoading: false };
-        case "FETCH_SUCCESS":
-            return { ...state, userList: action.payload };
-        case "FETCH_FAIL":
-            return { ...state, isLoading: false, error: true };
-        default:
-            return state;
-    }
-};
 
 function App() {
     // const [userList, setUserList] = useState([]);
