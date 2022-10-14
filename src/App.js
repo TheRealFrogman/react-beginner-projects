@@ -1,52 +1,96 @@
-import React from 'react';
-import './index.scss';
+import React, { useEffect, useState, useReducer } from "react";
+import "./index.scss";
+import { Collection } from "./Collection";
+import { reducer } from "./reducer";
 
-function Collection({ name, images }) {
-  return (
-    <div className="collection">
-      <img className="collection__big" src={images[0]} alt="Item" />
-      <div className="collection__bottom">
-        <img className="collection__mini" src={images[1]} alt="Item" />
-        <img className="collection__mini" src={images[2]} alt="Item" />
-        <img className="collection__mini" src={images[3]} alt="Item" />
-      </div>
-      <h4>{name}</h4>
-    </div>
-  );
-}
+const categories = [
+    { name: "Все" },
+    { name: "Море" },
+    { name: "Горы" },
+    { name: "Архитектура" },
+    { name: "Города" },
+];
+
+const DEFAULT_STATE = {
+    isLoading: true,
+    success: false,
+    error: false,
+    data: [],
+};
 
 function App() {
-  return (
-    <div className="App">
-      <h1>Моя коллекция фотографий</h1>
-      <div className="top">
-        <ul className="tags">
-          <li className="active">Все</li>
-          <li>Горы</li>
-          <li>Море</li>
-          <li>Архитектура</li>
-          <li>Города</li>
-        </ul>
-        <input className="search-input" placeholder="Поиск по названию" />
-      </div>
-      <div className="content">
-        <Collection
-          name="Путешествие по миру"
-          images={[
-            'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fGNpdHl8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
-            'https://images.unsplash.com/photo-1560840067-ddcaeb7831d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NDB8fGNpdHl8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
-            'https://images.unsplash.com/photo-1531219572328-a0171b4448a3?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mzl8fGNpdHl8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
-            'https://images.unsplash.com/photo-1573108724029-4c46571d6490?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MzR8fGNpdHl8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
-          ]}
-        />
-      </div>
-      <ul className="pagination">
-        <li>1</li>
-        <li className="active">2</li>
-        <li>3</li>
-      </ul>
-    </div>
-  );
+    const [category, setCategory] = useState(0);
+    const [page, setPage] = useState(1);
+    const [searchValue, setSearchValue] = useState("");
+    const [state, dispatch] = useReducer(reducer, DEFAULT_STATE);
+
+    useEffect(() => {
+        const categoryComputed = category ? `category=${category}` : "";
+        dispatch({ type: "FETCH_START" });
+        fetch(
+            `https://63487eb90484786c6e9ad659.mockapi.io/collections?${categoryComputed}&page=${page}&limit=2`
+        )
+            .then((res) => res.json())
+            .then((data) => dispatch({ type: "FETCH_SUCCESS", payload: data }))
+            .finally(() => dispatch({ type: "FETCH_END" }))
+            .catch((err) => dispatch({ type: "FETCH_FAIL", error: err }));
+    }, [category, page]);
+
+    return (
+        <div className="App">
+            <h1>Моя коллекция фотографий</h1>
+            <div className="top">
+                <ul className="tags">
+                    {categories.map((el, i) => (
+                        <li
+                            key={el.name}
+                            id={i}
+                            className={category === i ? "active" : ""}
+                            onClick={() => setCategory(i)}
+                        >
+                            {el.name}
+                        </li>
+                    ))}
+                </ul>
+                <input
+                    className="search-input"
+                    placeholder="Поиск по названию"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                />
+            </div>
+            <div className="content">
+                {state.isLoading ? (
+                    <h2>Загрузка...</h2>
+                ) : (
+                    state.data
+                        .filter((el) =>
+                            new RegExp(searchValue, "i").test(
+                                el.name.replace(/\s/g, "")
+                            )
+                        )
+                        .map((element, index) => (
+                            <Collection
+                                key={index}
+                                name={element.name}
+                                images={element.photos}
+                            />
+                        ))
+                )}
+            </div>
+            <ul className="pagination">
+                {[...Array(5)].map((_, i) => (
+                    <li
+                        className={page === i + 1 ? "active" : ""}
+                        key={i}
+                        onClick={() => setPage(i + 1)}
+                    >
+                        {i + 1}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 }
 
 export default App;
