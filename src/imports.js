@@ -33,10 +33,10 @@ export const handleVerify = (function () {
     }
     function verifyPass(password) {
         const regex = /^\w{6,}$/;
-        return regex.test(password);
+        if (password) return regex.test(password);
     }
     function verifyPassRepeat({ first, second }) {
-        return first === second;
+        if (first && second) return first === second;
     }
     return (type, inputValue) => {
         let fn;
