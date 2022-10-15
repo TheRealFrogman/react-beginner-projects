@@ -1,6 +1,6 @@
 import { useState, useEffect, useReducer } from "react";
 import "./index.scss";
-import { eyeHandler, handleVerify } from "./imports";
+import { eyeHandler } from "./imports";
 import { reducer } from "./imports";
 
 const DEFAULT_INPUTS = { email: "", name: "", pass: "", passRepeat: "" };
@@ -12,18 +12,21 @@ const DEFAULT_VERIFIED = {
 };
 
 const initialState = {
-    values: DEFAULT_INPUTS,
+    inputs: DEFAULT_INPUTS,
     verified: DEFAULT_VERIFIED,
 };
 
 function App() {
     const [eyeActive, setEyeActive] = useState(false);
-    const [formState, dispatch] = useReducer(reducer, initialState);
+    const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
-        //ОСТАВЬ РЕТЕРН ЯВНЫМ
         return eyeHandler(setEyeActive);
     }, []);
+
+    const handleBlur = (event) => {
+        dispatch({ type: "INPUT_VERIFY", target: event.target });
+    };
 
     return (
         <div className="App">
@@ -46,9 +49,9 @@ function App() {
                     </p>
                     <div
                         className={`form__field ${
-                            formState.verified.email === false
+                            state.verified.email === false
                                 ? "error"
-                                : formState.verified.email === true
+                                : state.verified.email === true
                                 ? "valid"
                                 : ""
                         }`}
@@ -58,73 +61,76 @@ function App() {
                             name="email"
                             spellCheck={false}
                             placeholder="E-Mail"
-                            value={formState.email}
+                            value={state.inputs.email}
                             onChange={(event) =>
                                 dispatch({
-                                    dataType: "email",
-                                    value: event.target.value,
+                                    type: "INPUT_CHANGE",
+                                    target: event.target,
                                 })
                             }
+                            onBlur={handleBlur}
                         />
                         <svg
                             className={`check ${
-                                formState.verified.email ? "green" : ""
+                                state.verified.email ? "green" : ""
                             }`}
                             viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg"
                         >
                             <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm5.707,8.707-7,7a1,1,0,0,1-1.414,0l-3-3a1,1,0,0,1,1.414-1.414L10,14.586l6.293-6.293a1,1,0,0,1,1.414,1.414Z" />
                         </svg>
-                        {formState.verified.email === false && (
+                        {state.verified.email === false && (
                             <span>Неверный формат почты</span>
                         )}
                     </div>
                     <div
                         className={`form__field ${
-                            formState.verified.name === false
+                            state.verified.name === false
                                 ? "error"
-                                : formState.verified.name === true
+                                : state.verified.name === true
                                 ? "valid"
                                 : ""
                         }`}
                     >
                         <input
                             type="text"
-                            name="fullName"
-                            value={formState.name}
+                            name="name"
+                            value={state.inputs.name}
                             onChange={(event) =>
                                 dispatch({
-                                    dataType: "name",
-                                    value: event.target.value,
+                                    type: "INPUT_CHANGE",
+                                    target: event.target,
                                 })
                             }
+                            onBlur={handleBlur}
                             // spellCheck={false}
                             placeholder="Полное имя"
                         />
-                        {formState.verified.name === false && (
+                        {state.verified.name === false && (
                             <span>Укажите полное имя</span>
                         )}
                     </div>
                     <div
                         className={`form__field ${
-                            formState.verified.pass === false
+                            state.verified.pass === false
                                 ? "error"
-                                : formState.verified.pass === true
+                                : state.verified.pass === true
                                 ? "valid"
                                 : ""
                         }`}
                     >
                         <input
                             type={!eyeActive ? "password" : "text"}
-                            name="password"
+                            name="pass"
                             placeholder="Пароль"
-                            value={formState.pass}
+                            value={state.inputs.pass}
                             onChange={(event) =>
                                 dispatch({
-                                    dataType: "pass",
-                                    value: event.target.value,
+                                    type: "INPUT_CHANGE",
+                                    target: event.target,
                                 })
                             }
+                            onBlur={handleBlur}
                         />
                         <svg
                             className={`eye ${eyeActive ? "active" : ""}`}
@@ -137,30 +143,31 @@ function App() {
                                 <path d="M14,13c0,1.102-0.898,2-2,2c-1.105,0-2-0.898-2-2c0-1.105,0.895-2,2-2C13.102,11,14,11.895,14,13z" />
                             </g>
                         </svg>
-                        {formState.verified.pass === false && (
+                        {state.verified.pass === false && (
                             <span>Неверный формат пароля</span>
                         )}
                     </div>
                     <div
                         className={`form__field ${
-                            formState.verified.passRepeat === false
+                            state.verified.passRepeat === false
                                 ? "error"
-                                : formState.verified.passRepeat === true
+                                : state.verified.passRepeat === true
                                 ? "valid"
                                 : ""
                         }`}
                     >
                         <input
                             type={!eyeActive ? "password" : "text"}
-                            name="password"
+                            name="passRepeat"
                             placeholder="Пароль"
-                            value={formState.passRepeat}
+                            value={state.inputs.passRepeat}
                             onChange={(event) =>
                                 dispatch({
-                                    dataType: "passRepeat",
-                                    value: event.target.value,
+                                    type: "INPUT_CHANGE",
+                                    target: event.target,
                                 })
                             }
+                            onBlur={handleBlur}
                         />
                         <svg
                             className={`eye ${eyeActive ? "active" : ""}`}
@@ -173,7 +180,7 @@ function App() {
                                 <path d="M14,13c0,1.102-0.898,2-2,2c-1.105,0-2-0.898-2-2c0-1.105,0.895-2,2-2C13.102,11,14,11.895,14,13z" />
                             </g>
                         </svg>
-                        {formState.verified.passRepeat === false && (
+                        {state.verified.passRepeat === false && (
                             <span>Пароли не совпадают</span>
                         )}
                     </div>
@@ -192,7 +199,7 @@ function App() {
 
                     <button
                         disabled={
-                            Object.values(formState.verified).every(
+                            Object.values(state.verified).every(
                                 (el) => el === true
                             )
                                 ? false

@@ -35,10 +35,13 @@ export const handleVerify = (function () {
         const regex = /^\w{6,}$/;
         if (password) return regex.test(password);
     }
-    function verifyPassRepeat({ first, second }) {
-        if (first && second) return first === second;
+    function verifyPassRepeat(first, second) {
+        if (first && second) {
+            console.log(first, second);
+            return first === second;
+        }
     }
-    return (type, inputValue) => {
+    return (type, inputValue, ...rest) => {
         let fn;
         switch (type) {
             case "email":
@@ -55,54 +58,33 @@ export const handleVerify = (function () {
                 break;
         }
 
-        return fn(inputValue);
-        // clearTimeout(timeout);
-        // setOk(null);
-        // timeout = setTimeout(() => {
-        //     setOk(() => fn(inputValue));
-        // }, 1000);
+        return fn(inputValue, ...rest);
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {}, 1000);
     };
 })();
 
 export const reducer = (state, action) => {
-    switch (action.dataType) {
-        case "email":
+    switch (action.type) {
+        case "INPUT_CHANGE":
+            // console.log(state);
             return {
-                values: { ...state.values, email: action.value },
-                verified: {
-                    ...state.verified,
-                    email: handleVerify("email", action.value),
+                ...state,
+                inputs: {
+                    ...state.inputs,
+                    [action.target.name]: action.target.value,
                 },
             };
-        case "name":
+        case "INPUT_VERIFY":
             return {
-                values: { ...state.values, name: action.value },
+                ...state,
                 verified: {
                     ...state.verified,
-                    name: handleVerify("name", action.value),
-                },
-            };
-        case "pass":
-            return {
-                values: { ...state.values, pass: action.value },
-                verified: {
-                    ...state.verified,
-                    pass: handleVerify("pass", action.value),
-                    passRepeat: handleVerify("passRepeat", {
-                        first: action.value,
-                        second: state.values.passRepeat,
-                    }),
-                },
-            };
-        case "passRepeat":
-            return {
-                values: { ...state.values, passRepeat: action.value },
-                verified: {
-                    ...state.verified,
-                    passRepeat: handleVerify("passRepeat", {
-                        first: state.values.pass,
-                        second: action.value,
-                    }),
+                    [action.target.name]: handleVerify(
+                        action.target.name,
+                        action.target.value,
+                        state.inputs.pass
+                    ),
                 },
             };
         default:
