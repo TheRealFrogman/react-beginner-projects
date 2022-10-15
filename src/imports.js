@@ -25,11 +25,11 @@ export const handleVerify = (function () {
     function verifyEmail(email) {
         const regexp =
             /^(([^<>()\[\]\\    .,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return email !== "" ? regexp.test(email) : null;
+        if (email) return regexp.test(email);
     }
     function verifyName(name) {
         const regexp = /\w{2,}/;
-        return regexp.test(name);
+        if (name) return regexp.test(name);
     }
     function verifyPass(password) {
         const regex = /^\w{6,}$/;
